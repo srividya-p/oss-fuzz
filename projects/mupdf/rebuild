@@ -1,0 +1,15 @@
+#!/bin/bash
+
+# Dev script to make rebuilding the fuzz target easier
+
+# Run with fuzz_target=target ./rebuild
+# After running the container with python3 infra/helper.py shell mupdf
+
+clang++ -O1   -fno-omit-frame-pointer   -gline-tables-only   -Wno-error=enum-constexpr-conversion \
+    -Wno-error=incompatible-function-pointer-types   -Wno-error=int-conversion   \
+    -Wno-error=deprecated-declarations   -Wno-error=implicit-function-declaration   \
+    -Wno-error=implicit-int   -Wno-error=vla-cxx-extension   -DFUZZING_BUILD_MODE_UNSAFE_FOR_PRODUCTION  \
+    -fprofile-instr-generate -fcoverage-mapping -pthread -Wl,--no-as-needed -Wl,-ldl -Wl,-lm \
+    -Wno-unused-command-line-argument -stdlib=libc++ -std=c++11 \
+    -Iinclude "/src/$fuzz_target.cc" -o "/out/$fuzz_target" \
+    -fsanitize=fuzzer /work/libmupdf.a /work/libmupdf-third.a
