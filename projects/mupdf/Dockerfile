@@ -17,11 +17,18 @@
 FROM gcr.io/oss-fuzz-base/base-builder
 RUN apt-get update && apt-get install -y make libtool pkg-config
 RUN git clone --recursive --depth 1 git://git.ghostscript.com/mupdf.git mupdf
-# TODO: improve seed corpus for fuzzers
+
+# TODO: improve seed corpus for new fuzzers
 RUN git clone --depth 1 https://github.com/mozilla/pdf.js pdf.js && \
-    zip -q $SRC/bake_fuzzer_seed_corpus.zip pdf.js/test/pdfs/*.pdf && \
+    zip -q $SRC/pdf_fuzzer_seed_corpus.zip pdf.js/test/pdfs/*.pdf && \
     rm -rf pdf.js
-ADD https://raw.githubusercontent.com/rc0r/afl-fuzz/master/dictionaries/pdf.dict $SRC/bake_fuzzer.dict
+RUN cp $SRC/pdf_fuzzer_seed_corpus.zip $SRC/validate_signature_fuzzer_seed_corpus.zip
+RUN cp $SRC/pdf_fuzzer_seed_corpus.zip $SRC/bake_fuzzer_seed_corpus.zip 
+
+ADD https://raw.githubusercontent.com/rc0r/afl-fuzz/master/dictionaries/pdf.dict $SRC/pdf_fuzzer.dict
+RUN cp $SRC/pdf_fuzzer.dict $SRC/validate_signature_fuzzer.dict
+RUN cp $SRC/pdf_fuzzer.dict $SRC/bake_fuzzer.dict
+
 WORKDIR mupdf
 COPY *.cc $SRC/
 COPY build.sh *.options $SRC/

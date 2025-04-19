@@ -18,28 +18,32 @@
 # supp_size is unused in harfbuzz so we will avoid it being unused.
 sed -i 's/supp_size;/supp_size;(void)(supp_size);/g' ./thirdparty/harfbuzz/src/hb-subset-cff1.cc
 
-# TODO: build all fuzzers here
 LDFLAGS="$CXXFLAGS" make -j$(nproc) HAVE_GLUT=no build=debug OUT=$WORK \
     $WORK/libmupdf-third.a $WORK/libmupdf.a
-fuzz_target=bake_fuzzer
 
-$CXX $CXXFLAGS -std=c++11 -Iinclude \
-    $SRC/bake_fuzzer.cc -o $OUT/$fuzz_target \
-    $LIB_FUZZING_ENGINE $WORK/libmupdf.a $WORK/libmupdf-third.a
+fuzz_targets=("pdf_fuzzer" "validate_signature_fuzzer" "bake_fuzzer")
 
-mv $SRC/{*.zip,*.dict,*.options} $OUT
+for fuzz_target in "${fuzz_targets[@]}"; do
+  $CXX $CXXFLAGS -std=c++11 -Iinclude \
+      $SRC/$fuzz_target.cc -o $OUT/$fuzz_target \
+      $LIB_FUZZING_ENGINE $WORK/libmupdf.a $WORK/libmupdf-third.a
 
-if [ ! -f "${OUT}/${fuzz_target}_seed_corpus.zip" ]; then
-  echo "missing seed corpus"
-  exit 1
-fi
+  mv $SRC/${fuzz_target}_seed_corpus.zip $OUT
+  mv $SRC/$fuzz_target.dict $OUT
+  mv $SRC/clear$fuzz_target.options $OUT
 
-if [ ! -f "${OUT}/${fuzz_target}.dict" ]; then
-  echo "missing dictionary"
-  exit 1
-fi
+  if [ ! -f "${OUT}/${fuzz_target}_seed_corpus.zip" ]; then
+    echo "missing seed corpus"
+    exit 1
+  fi
 
-if [ ! -f "${OUT}/${fuzz_target}.options" ]; then
-  echo "missing options"
-  exit 1
-fi
+  if [ ! -f "${OUT}/${fuzz_target}.dict" ]; then
+    echo "missing dictionary"
+    exit 1
+  fi
+
+  if [ ! -f "${OUT}/${fuzz_target}.options" ]; then
+    echo "missing options"
+    exit 1
+  fi
+done
