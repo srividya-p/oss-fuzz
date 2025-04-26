@@ -112,6 +112,8 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size)
     int bake_widgets = 0;
     memcpy(&bake_annots, data, 4);
     memcpy(&bake_widgets, data + 4, 4);
+    bake_annots = bake_annots % 2;
+    bake_widgets = bake_widgets % 2;
 
     const uint8_t *pdf_data = data + 8;
     size_t pdf_size = size - 8;
@@ -132,7 +134,7 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size)
     fz_try(ctx)
     {
         fz_register_document_handlers(ctx);
-        stream = fz_open_memory(ctx, data, size);
+        stream = fz_open_memory(ctx, pdf_data, size);
         doc = fz_open_document_with_stream(ctx, "pdf", stream);
 
         pdf_document *pdf_doc = pdf_specifics(ctx, doc);
