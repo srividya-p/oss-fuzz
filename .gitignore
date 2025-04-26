@@ -10,3 +10,5 @@
 # IntelliJ IDEA
 /.idea
 **/*.iml
+
+bake_fuzzer_seed_corpus.zip
