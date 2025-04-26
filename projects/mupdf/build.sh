@@ -20,10 +20,10 @@ sed -i 's/supp_size;/supp_size;(void)(supp_size);/g' ./thirdparty/harfbuzz/src/h
 
 LDFLAGS="$CXXFLAGS" make -j$(nproc) HAVE_GLUT=no build=debug OUT=$WORK \
     $WORK/libmupdf-third.a $WORK/libmupdf.a
-fuzz_target=pdf_fuzzer
+fuzz_target=bake_fuzzer
 
 $CXX $CXXFLAGS -std=c++11 -Iinclude \
-    $SRC/pdf_fuzzer.cc -o $OUT/$fuzz_target \
+    $SRC/bake_fuzzer.cc -o $OUT/$fuzz_target \
     $LIB_FUZZING_ENGINE $WORK/libmupdf.a $WORK/libmupdf-third.a
 
 mv $SRC/{*.zip,*.dict,*.options} $OUT
