@@ -134,7 +134,7 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size)
     fz_try(ctx)
     {
         fz_register_document_handlers(ctx);
-        stream = fz_open_memory(ctx, pdf_data, size);
+        stream = fz_open_memory(ctx, pdf_data, pdf_size);
         doc = fz_open_document_with_stream(ctx, "pdf", stream);
 
         pdf_document *pdf_doc = pdf_specifics(ctx, doc);
