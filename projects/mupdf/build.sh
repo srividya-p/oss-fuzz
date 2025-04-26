@@ -30,7 +30,7 @@ for fuzz_target in "${fuzz_targets[@]}"; do
 
   mv $SRC/${fuzz_target}_seed_corpus.zip $OUT
   mv $SRC/$fuzz_target.dict $OUT
-  mv $SRC/clear$fuzz_target.options $OUT
+  mv $SRC/$fuzz_target.options $OUT
 
   if [ ! -f "${OUT}/${fuzz_target}_seed_corpus.zip" ]; then
     echo "missing seed corpus"
