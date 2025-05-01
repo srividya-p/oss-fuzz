@@ -106,17 +106,7 @@ static fz_alloc_context fz_alloc_ossfuzz =
 extern "C" int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size)
 {
     if (size < 8)
-        return 0; // not enough data for flags
-
-    int bake_annots = 0;
-    int bake_widgets = 0;
-    memcpy(&bake_annots, data, 4);
-    memcpy(&bake_widgets, data + 4, 4);
-    bake_annots = bake_annots % 2;
-    bake_widgets = bake_widgets % 2;
-
-    const uint8_t *pdf_data = data + 8;
-    size_t pdf_size = size - 8;
+        return 0; // data too small
 
     fz_context *ctx;
     fz_stream *stream;
@@ -134,8 +124,10 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size)
     fz_try(ctx)
     {
         fz_register_document_handlers(ctx);
-        stream = fz_open_memory(ctx, pdf_data, pdf_size);
+        stream = fz_open_memory(ctx, data, size);
         doc = fz_open_document_with_stream(ctx, "pdf", stream);
+        int bake_annots = 1;
+        int bake_widgets = 1;
 
         pdf_document *pdf_doc = pdf_specifics(ctx, doc);
         if (pdf_doc)
