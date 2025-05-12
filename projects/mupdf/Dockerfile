@@ -31,3 +31,4 @@ RUN cp $SRC/pdf_fuzzer.dict $SRC/bake_fuzzer.dict
 WORKDIR mupdf
 COPY *.cc $SRC/
 COPY build.sh *.options $SRC/
+COPY *.patch $SRC/mupdf
