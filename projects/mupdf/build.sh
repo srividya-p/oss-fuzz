@@ -18,8 +18,30 @@
 # supp_size is unused in harfbuzz so we will avoid it being unused.
 sed -i 's/supp_size;/supp_size;(void)(supp_size);/g' ./thirdparty/harfbuzz/src/hb-subset-cff1.cc
 
-LDFLAGS="$CXXFLAGS" make -j$(nproc) HAVE_GLUT=no build=debug OUT=$WORK \
-    $WORK/libmupdf-third.a $WORK/libmupdf.a
+patch -p1 < font.patch
+
+# Save originals
+ORIG_CFLAGS="$CFLAGS"
+ORIG_CXXFLAGS="$CXXFLAGS"
+
+# Strip out -fsanitize* and the fuzzer-no-link flag:
+CFLAGS_THIRD=$(printf '%s\n' "$CFLAGS" \
+  | sed -E 's/-fsanitize=[^ ]+//g' \
+  | sed -E 's|-fsanitize-address-use-after-scope||g' \
+  | sed -E 's|-fsanitize=fuzzer-no-link||g' \
+  | xargs)
+CXXFLAGS_THIRD=$(printf '%s\n' "$CXXFLAGS" \
+  | sed -E 's/-fsanitize=[^ ]+//g' \
+  | sed -E 's|-fsanitize-address-use-after-scope||g' \
+  | sed -E 's|-fsanitize=fuzzer-no-link||g' \
+  | xargs)
+export CFLAGS="${CFLAGS_THIRD/-O1/-O3}"
+export CXXFLAGS="${CXXFLAGS_THIRD/-O1/-O3}"
+LDFLAGS="$CXXFLAGS" make -j$(nproc) HAVE_GLUT=no build=debug OUT=$WORK $WORK/libmupdf-third.a
+
+export CFLAGS="${ORIG_CFLAGS/-O1/-O3}"
+export CXXFLAGS="${ORIG_CXXFLAGS/-O1/-O3}"
+LDFLAGS="$CXXFLAGS" make -j$(nproc) HAVE_GLUT=no build=debug OUT=$WORK $WORK/libmupdf.a
 
 fuzz_targets=("pdf_fuzzer" "bake_fuzzer")
 
