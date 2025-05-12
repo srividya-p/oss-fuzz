@@ -22,9 +22,8 @@ RUN cd mupdf && git checkout 7f1e6c0a15d158373a7004d2840ac282aec74d1f
 RUN git clone --depth 1 https://github.com/mozilla/pdf.js pdf.js && \
     zip -q $SRC/pdf_fuzzer_seed_corpus.zip pdf.js/test/pdfs/*.pdf && \
     rm -rf pdf.js
-RUN git clone --depth 1 https://github.com/srividya-p/mupdf_bake_fuzz_corpus/ corpus && \
-    zip -q $SRC/bake_fuzzer_seed_corpus.zip corpus/bake_fuzzer_seed_corpus/*.pdf && \
-    rm -rf corpus
+RUN wget -O $SRC/bake_fuzzer_seed_corpus.zip \
+    https://raw.githubusercontent.com/srividya-p/mupdf_bake_fuzz_corpus/master/bake_fuzzer_seed_corpus.zip
 
 ADD https://raw.githubusercontent.com/rc0r/afl-fuzz/master/dictionaries/pdf.dict $SRC/pdf_fuzzer.dict
 RUN cp $SRC/pdf_fuzzer.dict $SRC/bake_fuzzer.dict
